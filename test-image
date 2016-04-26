@@ -1,3 +1,29 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 
-abort "You should add tests to (#{ File.expand_path __FILE__ })."
+set -e
+
+function cleanup {
+  docker rm "$(docker kill ${CONTAINER_ID})"
+  rm "${SERVICE_NAME}.cid"
+}
+
+SERVICE_NAME=`basename $(pwd) | sed 's/^platform-//'`
+CONTAINER_NAME="$1"
+
+docker run -itd \
+  --cidfile="${SERVICE_NAME}.cid" \
+  "${CONTAINER_NAME}"
+
+CONTAINER_ID=`cat "${SERVICE_NAME}.cid"`
+
+trap cleanup EXIT
+
+echo "Please wait..."
+sleep 10
+
+docker exec "${CONTAINER_ID}" \
+  redis-cli INFO
+
+CODE=$?
+
+exit $CODE
