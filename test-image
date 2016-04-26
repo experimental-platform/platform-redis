@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+abort "You should add tests to (#{ File.expand_path __FILE__ })."
